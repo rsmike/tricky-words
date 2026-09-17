@@ -24,7 +24,7 @@ window.WORD_LISTS = [
 
   {
     id: "2026-09-17-a-words",
-    title: "A words",
+    title: "Week 2 Espresso",
     date: "2026-09-17",
     words: [
       { w: "abstain",    m: "choose not to",          chunks: "ab|stain",      decoys: "ey",
@@ -68,7 +68,7 @@ window.WORD_LISTS = [
 
   {
     id: "2026-09-10-accident-to-special",
-    title: "Accident to special",
+    title: "Week 1: First test",
     date: "2026-09-10",
     words: [
       { w: "accident",    m: "something that goes wrong by mistake", chunks: "ac|ci|dent",        decoys: "ks",
