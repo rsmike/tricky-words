@@ -1,0 +1,22 @@
+{
+  "name": "Tricky words",
+  "short_name": "Tricky words",
+  "description": "Weekly tricky words: meanings and spellings.",
+  "start_url": ".",
+  "scope": ".",
+  "display": "standalone",
+  "background_color": "#F8F8ED",
+  "theme_color": "#3A2B68",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

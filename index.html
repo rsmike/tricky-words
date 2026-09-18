@@ -12,6 +12,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="theme-color" content="#F8F8ED" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#17112B" media="(prefers-color-scheme: dark)">
+<link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon.png">
 <link rel="icon" type="image/png" href="icon.png">
 <link rel="preload" href="fonts/fredoka.woff2" as="font" type="font/woff2" crossorigin>
@@ -242,8 +243,38 @@ button.tile:active{transform:translateY(2px);box-shadow:0 2px 0 var(--tile-deep)
 .oops{align-items:center;justify-content:center;text-align:center}
 .oops code{background:var(--card);border:2px solid var(--line);border-radius:8px;padding:2px 8px}
 
-.btn .ico{width:18px;height:18px;vertical-align:-3px;margin-right:6px}
-.btn[aria-pressed="false"]{color:var(--ink-soft)}
+/* icon buttons on the home screen (sound, help) */
+.tools{margin-left:auto;display:flex;gap:10px}
+.iconbtn{
+  position:relative;width:48px;height:48px;border-radius:14px;display:grid;place-items:center;flex:none;
+  background:var(--card);border:2px solid var(--line);box-shadow:0 3px 0 var(--line);color:var(--ink);
+  font-family:var(--display);font-weight:600;font-size:1.5rem;line-height:1;
+}
+.iconbtn:active{transform:translateY(2px);box-shadow:0 1px 0 var(--line)}
+.iconbtn svg{width:24px;height:24px}
+.iconbtn.off{color:var(--ink-soft)}
+.iconbtn.hot{background:var(--tile);border-color:var(--tile-deep);box-shadow:0 3px 0 var(--tile-deep);color:var(--tile-ink)}
+.iconbtn.hot::after{
+  content:"";position:absolute;inset:-6px;border-radius:19px;border:3px solid var(--tile);
+  animation:ring 1.8s ease-out infinite;pointer-events:none;
+}
+@keyframes ring{0%{opacity:.9;transform:scale(.92)}70%,100%{opacity:0;transform:scale(1.25)}}
+
+/* help screen */
+.lead{font-size:1.2rem;max-width:52ch}
+.helpcard{background:var(--card);border:2px solid var(--line);border-radius:20px;padding:20px 24px}
+.helpcard h3,.helpcard summary{font-family:var(--display);font-weight:600;font-size:1.35rem}
+.helpcard summary{cursor:pointer;min-height:32px}
+.helpcard[open] summary{margin-bottom:6px}
+.steps{list-style:none;padding:0;margin-top:12px;counter-reset:step;display:grid;gap:14px}
+.steps li{counter-increment:step;position:relative;padding-left:52px;padding-top:4px;min-height:36px;font-size:1.12rem}
+.steps li::before{
+  content:counter(step);position:absolute;left:0;top:0;width:36px;height:36px;border-radius:50%;
+  background:var(--tile);color:var(--tile-ink);font-family:var(--display);font-weight:600;display:grid;place-items:center;
+}
+.steps b{font-weight:600}
+svg.inl{width:1.25em;height:1.25em;vertical-align:-.25em;color:var(--chunk-a)}
+.tip.wide{max-width:none;font-size:1.05rem}
 </style>
 </head>
 <body>
@@ -341,6 +372,18 @@ var KINDS = ['m','t','k'];
 var KIND_NAME = {m:'meanings', t:'letter tiles', k:'keyboard'};
 
 /* ---------- which list? latest, unless an older one was picked in this tab ---------- */
+/* where are we running? decides which "add to Home Screen" steps come first */
+var UA = navigator.userAgent || '';
+var IS_IOS = /iPad|iPhone|iPod/.test(UA) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+var IS_ANDROID = /Android/.test(UA);
+var STANDALONE = (function(){
+  try { return navigator.standalone === true || (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches); }
+  catch(e){ return false; }
+})();
+/* the ? button is highlighted until it has been opened once on this device */
+var HELP_KEY = 'trickywords:v2:helpSeen';
+var helpSeen = (function(){ try { return localStorage.getItem(HELP_KEY) === '1'; } catch(e){ return false; } })();
+
 var PICK_KEY = 'trickywords:v2:picked';
 function byId(id){ return LISTS.filter(function(l){ return l.id === id; })[0] || null; }
 function initialList(){
@@ -418,7 +461,9 @@ function speak(text, rate){
     speechSynthesis.speak(u);
   } catch(e){}
 }
-var ICON_SMALL = '<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5z" fill="currentColor"/></svg>';
+var ICON_SOUND_ON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5z" fill="currentColor"/><path d="M15.5 9a4 4 0 0 1 0 6"/><path d="M18 6.5a7.5 7.5 0 0 1 0 11"/></svg>';
+var ICON_SOUND_OFF = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5z" fill="currentColor"/><path d="M16 9.5l5 5M21 9.5l-5 5"/></svg>';
+var ICON_SHARE = '<svg class="inl" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V3.5M8 7l4-4 4 4"/><path d="M8 10.5H6.5a1.5 1.5 0 0 0-1.5 1.5v7A1.5 1.5 0 0 0 6.5 20.5h11A1.5 1.5 0 0 0 19 19v-7a1.5 1.5 0 0 0-1.5-1.5H16"/></svg>';
 var ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5z" fill="currentColor"/><path d="M15.5 9a4 4 0 0 1 0 6"/><path d="M18 6.5a7.5 7.5 0 0 1 0 11"/></svg>';
 
 /* ---------- shared bits of markup ---------- */
@@ -468,7 +513,10 @@ VIEWS.home = function(){
       '<p class="starcount"><span class="star on">★</span> ' + starCountFor(L) + ' of ' + (n * 3) + ' stars</p></header>' +
     '<p class="listline"><span>' + n + ' words' + (L.dateStr ? ', added ' + L.dateStr : '') + '</span>' +
       (LISTS.length > 1 ? '<button class="btn quiet small" data-act="lists">Other lists</button>' : '') +
-      (canSpeak ? '<button class="btn quiet small" data-act="sound" aria-pressed="' + soundOn + '">' + ICON_SMALL + (soundOn ? 'Sound on' : 'Sound off') + '</button>' : '') + '</p>' +
+      '<span class="tools">' +
+        (canSpeak ? '<button class="iconbtn' + (soundOn ? '' : ' off') + '" data-act="sound" aria-pressed="' + soundOn + '" aria-label="' + (soundOn ? 'Sound is on. Switch it off' : 'Sound is off. Switch it on') + '">' + (soundOn ? ICON_SOUND_ON : ICON_SOUND_OFF) + '</button>' : '') +
+        '<button class="iconbtn help' + (!helpSeen && !STANDALONE ? ' hot' : ' off') + '" data-act="help" aria-label="How to add this to your Home Screen">?</button>' +
+      '</span></p>' +
     (L !== LISTS[0] ? '<div class="banner"><span>This is an older list. The newest one is <b>' + esc(LISTS[0].title) + '</b>.</span>' +
       '<button class="btn small solid" data-act="latest">Go to the latest list</button></div>' : '') +
     '<button class="hero" data-act="learnWord" data-w="' + esc(hero.w) + '" aria-label="' + esc(hero.w + ' means ' + hero.m) + '. Open this word.">' +
@@ -487,6 +535,47 @@ VIEWS.home = function(){
     }).join('') + '</ul>' +
     '<p class="legend">Every word has three stars: meanings, letter tiles and keyboard. Get a word right first time to win its star. Stars are saved on this device only.</p>' +
     '<button class="linkbtn" data-act="reset">' + (S.confirmReset ? 'Tap again to clear every star in this list' : 'Clear the stars for this list') + '</button>' +
+  '</section>';
+};
+
+VIEWS.help = function(){
+  var ios = '<ol class="steps">' +
+      '<li>Open this page in <b>Safari</b>. (Chrome and Firefox on an iPad can do it too, from their own Share menu.)</li>' +
+      '<li>Tap the <b>Share</b> button ' + ICON_SHARE + ', the square with an arrow pointing up. On an iPhone it may be tucked behind the <b>...</b> button.</li>' +
+      '<li>Scroll down the list and tap <b>Add to Home Screen</b>.</li>' +
+      '<li>Tap <b>Add</b>. If you see an <b>Open as Web App</b> switch, leave it on.</li>' +
+    '</ol>';
+  var android = '<ol class="steps">' +
+      '<li>Open this page in <b>Chrome</b>.</li>' +
+      '<li>Tap the <b>&#8942;</b> menu at the top right.</li>' +
+      '<li>Tap <b>Add to Home screen</b>. It may say <b>Install app</b> instead.</li>' +
+      '<li>Tap <b>Add</b> or <b>Install</b>.</li>' +
+    '</ol>';
+  var desktop = '<ol class="steps">' +
+      '<li><b>Safari on a Mac:</b> choose File, then <b>Add to Dock</b>.</li>' +
+      '<li><b>Chrome or Edge:</b> open the <b>&#8942;</b> menu and look for <b>Install</b>, usually under Cast, save and share.</li>' +
+      '<li>Or simply bookmark the page.</li>' +
+    '</ol>';
+  var secs = [
+    {k:'ios', name:'iPad or iPhone', body:ios},
+    {k:'android', name:'Android tablet or phone', body:android},
+    {k:'desktop', name:'Computer', body:desktop}
+  ];
+  var mine = IS_IOS ? 'ios' : (IS_ANDROID ? 'android' : 'desktop');
+  secs.sort(function(a, b){ return (a.k === mine ? 0 : 1) - (b.k === mine ? 0 : 1); });
+  var address = '';
+  try { if (/^https?:$/.test(location.protocol)) address = location.host + location.pathname.replace(/index\.html$/, '').replace(/\/$/, ''); } catch(e){}
+  return screenOpen('helpscreen') +
+    '<div class="topbar"><button class="btn quiet small" data-act="home">Back</button><h2>Add it to your Home Screen</h2></div>' +
+    (STANDALONE
+      ? '<p class="tip wide">You are already running it from the Home Screen, so there is nothing to do. The steps are here in case you want to set it up on another device.</p>'
+      : '<p class="lead">It then opens full screen from its own icon, like an app. It takes about ten seconds.</p>') +
+    '<div class="helpcard"><h3>' + secs[0].name + '</h3>' + secs[0].body + '</div>' +
+    '<p class="tip wide"><b>Worth knowing:</b> stars are saved on this device only, and the Home Screen icon keeps its own set, separate from the browser. So add the icon first, then always open it from the icon. Stars already won in the browser do not move across.</p>' +
+    secs.slice(1).map(function(x){
+      return '<details class="helpcard"><summary>' + x.name + '</summary>' + x.body + '</details>';
+    }).join('') +
+    (address ? '<p class="legend">To set it up on another device, open <b>' + esc(address) + '</b> there.</p>' : '') +
   '</section>';
 };
 
@@ -710,6 +799,10 @@ function check(){
 var ACT = {
   home: function(){ if (canSpeak) { try { speechSynthesis.cancel(); } catch(e){} } go(homeState()); },
   lists: function(){ go({screen:'lists'}); },
+  help: function(){
+    if (!helpSeen){ helpSeen = true; try { localStorage.setItem(HELP_KEY, '1'); } catch(e){} }
+    go({screen:'help'});
+  },
   sound: function(){
     soundOn = !soundOn;
     try { localStorage.setItem(SOUND_KEY, soundOn ? '1' : '0'); } catch(e){}

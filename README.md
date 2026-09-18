@@ -7,13 +7,13 @@ index.html      the app (never needs touching week to week)
 lists.js        all the word lists - the only file edited each week
 NEW-LIST-PROMPT.md   prompt for Claude: photo of the sheet in, lists.js block out
 fonts/          self-hosted Fredoka + Lexend (SIL Open Font License)
-icon.png        home-screen icon
+icon*.png, manifest.webmanifest   home-screen icons, and the manifest that lets Android install it as an app
 ```
 
 ## Put it on GitHub Pages (one-off, about 5 minutes)
 
 1. On github.com: **New repository**. Name it e.g. `tricky-words`. Set it to **Public** (Pages from a private repo needs GitHub Pro or Team, and the published site is public either way). Create.
-2. On the new repo page: **uploading an existing file**. Drag in everything from this folder: `index.html`, `lists.js`, `icon.png`, the two `.md` files and the whole `fonts` folder. **Commit changes**.
+2. On the new repo page: **uploading an existing file**. Drag in everything from this folder, including the whole `fonts` folder. **Commit changes**.
 3. **Settings > Pages**. Under *Build and deployment*: Source = **Deploy from a branch**, Branch = **main**, folder = **/ (root)**. **Save**.
 4. Wait a minute, refresh the Pages settings screen. It shows the live address: `https://YOUR-USERNAME.github.io/tricky-words/`
 5. On the iPad: open that address in Safari, then **Share > Add to Home Screen**. It opens full-screen like an app.
@@ -63,3 +63,4 @@ If the page shows "No word lists yet", `lists.js` has a syntax error - nearly al
 - Consequences: progress does not sync between devices; clearing Safari website data wipes it; Safari and the Home Screen icon keep **separate** storage on iOS, so pick one way of opening it and stick to it.
 - One set of stars per device. Two children sharing an iPad would share stars.
 - Sound can be switched off on the home screen (saved per device). On desktop Firefox for macOS it starts off, because Firefox's bridge to the macOS voice makes a loud pop at the end of every word; it can still be switched on there. iPads are unaffected, including Firefox for iPad.
+- The **?** button on the home screen explains how to add the page to the Home Screen (steps for the current device come first). It is highlighted until opened once on that device.
