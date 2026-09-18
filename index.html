@@ -277,7 +277,8 @@ svg.inl{width:1.25em;height:1.25em;vertical-align:-.25em;color:var(--chunk-a)}
 .tip.wide{max-width:none;font-size:1.05rem}
 
 /* groups (tags) */
-.listline .tag{margin-left:0}
+.home-head h1 .tag{margin-left:12px;vertical-align:middle;line-height:1.4}
+.listmeta{font-size:.8rem;line-height:1.25}
 .grouphead{font-family:var(--display);font-weight:600;font-size:1.25rem;margin-top:6px}
 .grouphead .lr-meta{font-family:var(--body);font-weight:400;margin-left:8px}
 </style>
@@ -545,11 +546,11 @@ VIEWS.oops = function(){
 VIEWS.home = function(){
   var hero = L.by[S.hero], n = L.words.length;
   return screenOpen('home', hero.w.length) +
-    '<header class="home-head"><h1>' + esc(L.title) + '</h1>' +
+    '<header class="home-head"><h1>' + esc(L.title) + (L.tag ? '<span class="tag">' + esc(L.tagName) + '</span>' : '') + '</h1>' +
       '<p class="starcount"><span class="star on">★</span> ' + starCountFor(L) + ' of ' + (n * 3) + ' stars</p></header>' +
-    '<p class="listline">' + (L.tag ? '<span class="tag">' + esc(L.tagName) + '</span>' : '') + '<span>' + n + ' words' + (L.dateStr ? ', added ' + L.dateStr : '') + '</span>' +
-      (LISTS.length > 1 ? '<button class="btn quiet small" data-act="lists">Other lists</button>' : '') +
+    '<p class="listline"><span class="listmeta">' + n + ' words' + (L.dateStr ? '<br>added ' + L.dateStr : '') + '</span>' +
       '<span class="tools">' +
+        (LISTS.length > 1 ? '<button class="btn quiet small" data-act="lists">Other lists</button>' : '') +
         (canSpeak ? '<button class="iconbtn' + (soundOn ? '' : ' off') + '" data-act="sound" aria-pressed="' + soundOn + '" aria-label="' + (soundOn ? 'Sound is on. Switch it off' : 'Sound is off. Switch it on') + '">' + (soundOn ? ICON_SOUND_ON : ICON_SOUND_OFF) + '</button>' : '') +
         '<button class="iconbtn help' + (!helpSeen && !STANDALONE ? ' hot' : ' off') + '" data-act="help" aria-label="How to add this to your Home Screen">?</button>' +
       '</span></p>' +
