@@ -241,6 +241,9 @@ button.tile:active{transform:translateY(2px);box-shadow:0 2px 0 var(--tile-deep)
 .key.space{flex:4 1 0;max-width:300px;font-family:var(--body);font-size:1rem;font-weight:600;padding-bottom:0}
 .oops{align-items:center;justify-content:center;text-align:center}
 .oops code{background:var(--card);border:2px solid var(--line);border-radius:8px;padding:2px 8px}
+
+.btn .ico{width:18px;height:18px;vertical-align:-3px;margin-right:6px}
+.btn[aria-pressed="false"]{color:var(--ink-soft)}
 </style>
 </head>
 <body>
@@ -394,8 +397,18 @@ if (canSpeak){
   pickVoice();
   try { speechSynthesis.addEventListener('voiceschanged', pickVoice); } catch(e){}
 }
+/* Sound on/off, saved per device. Desktop Firefox on macOS pops loudly at the end of every
+   utterance (its bridge to the macOS synthesiser, not fixable from a page), so sound starts
+   switched off there. Firefox on iPad is WebKit and reports "FxiOS", so it is not affected. */
+var SOUND_KEY = 'trickywords:v2:sound';
+var glitchy = /Firefox\//.test(navigator.userAgent) && /Macintosh/.test(navigator.userAgent);
+var soundOn = (function(){
+  try { var v = localStorage.getItem(SOUND_KEY); if (v === '1') return true; if (v === '0') return false; } catch(e){}
+  return !glitchy;
+})();
+function hearable(){ return canSpeak && soundOn; }
 function speak(text, rate){
-  if (!canSpeak) return;
+  if (!canSpeak || !soundOn) return;
   try {
     speechSynthesis.cancel();
     var u = new SpeechSynthesisUtterance(text);
@@ -405,6 +418,7 @@ function speak(text, rate){
     speechSynthesis.speak(u);
   } catch(e){}
 }
+var ICON_SMALL = '<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5z" fill="currentColor"/></svg>';
 var ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5z" fill="currentColor"/><path d="M15.5 9a4 4 0 0 1 0 6"/><path d="M18 6.5a7.5 7.5 0 0 1 0 11"/></svg>';
 
 /* ---------- shared bits of markup ---------- */
@@ -453,7 +467,8 @@ VIEWS.home = function(){
     '<header class="home-head"><h1>' + esc(L.title) + '</h1>' +
       '<p class="starcount"><span class="star on">★</span> ' + starCountFor(L) + ' of ' + (n * 3) + ' stars</p></header>' +
     '<p class="listline"><span>' + n + ' words' + (L.dateStr ? ', added ' + L.dateStr : '') + '</span>' +
-      (LISTS.length > 1 ? '<button class="btn quiet small" data-act="lists">Other lists</button>' : '') + '</p>' +
+      (LISTS.length > 1 ? '<button class="btn quiet small" data-act="lists">Other lists</button>' : '') +
+      (canSpeak ? '<button class="btn quiet small" data-act="sound" aria-pressed="' + soundOn + '">' + ICON_SMALL + (soundOn ? 'Sound on' : 'Sound off') + '</button>' : '') + '</p>' +
     (L !== LISTS[0] ? '<div class="banner"><span>This is an older list. The newest one is <b>' + esc(LISTS[0].title) + '</b>.</span>' +
       '<button class="btn small solid" data-act="latest">Go to the latest list</button></div>' : '') +
     '<button class="hero" data-act="learnWord" data-w="' + esc(hero.w) + '" aria-label="' + esc(hero.w + ' means ' + hero.m) + '. Open this word.">' +
@@ -492,7 +507,7 @@ VIEWS.learn = function(){
   return screenOpen() + topbar(S.i, total) +
     '<div class="card">' +
       chunksHTML(x) +
-      (canSpeak ? '<button class="hear" data-act="hear">' + ICON + ' Hear it</button>' : '') +
+      (hearable() ? '<button class="hear" data-act="hear">' + ICON + ' Hear it</button>' : '') +
       '<p class="means">= ' + esc(x.m) + '</p>' +
       (x.s ? '<p class="sentence">' + esc(x.s).replace('{w}', '<strong>' + esc(x.w) + '</strong>') + '</p>' : '') +
       (x.tip ? '<p class="tip">' + rich(x.tip) + '</p>' : '') +
@@ -508,7 +523,7 @@ VIEWS.quiz = function(){
   var item = S.queue[S.i], x = L.by[item.w], a = S.answered, w2m = item.dir === 'w2m';
   var prompt = w2m
     ? '<p class="ask">What does this word mean?</p><p class="big-word">' + esc(x.w) + '</p>' +
-      (canSpeak ? '<button class="hear" data-act="hear">' + ICON + ' Hear it</button>' : '')
+      (hearable() ? '<button class="hear" data-act="hear">' + ICON + ' Hear it</button>' : '')
     : '<p class="ask">Which word means this?</p><p class="big-mean">' + esc(x.m) + '</p>';
   var opts = S.opts.map(function(o){
     var cls = 'opt' + (w2m ? '' : ' wordy'), mark = '';
@@ -539,7 +554,7 @@ VIEWS.spell = function(){
     '<p class="ask">Spell the word that means</p>' +
     '<p class="clue-mean">' + esc(x.m) + '</p>' +
     (x.blank ? '<p class="clue-sent">' + esc(x.s).replace('{w}', '<span class="blank"></span>') + '</p>' : '') +
-    (canSpeak ? '<div class="hear-row"><button class="hear" data-act="hear">' + ICON + ' Hear the word</button>' +
+    (hearable() ? '<div class="hear-row"><button class="hear" data-act="hear">' + ICON + ' Hear the word</button>' +
                 (x.s ? '<button class="hear" data-act="hearSent">' + ICON + ' Hear the sentence</button>' : '') + '</div>' : '') +
   '</div>';
 
@@ -695,6 +710,13 @@ function check(){
 var ACT = {
   home: function(){ if (canSpeak) { try { speechSynthesis.cancel(); } catch(e){} } go(homeState()); },
   lists: function(){ go({screen:'lists'}); },
+  sound: function(){
+    soundOn = !soundOn;
+    try { localStorage.setItem(SOUND_KEY, soundOn ? '1' : '0'); } catch(e){}
+    if (!soundOn && canSpeak){ try { speechSynthesis.cancel(); } catch(e){} }
+    render();
+    if (soundOn) speak(S.hero);
+  },
   pickList: function(d){ var l = byId(d.id); if (l){ L = l; rememberPick(); } go(homeState()); },
   latest: function(){ L = LISTS[0]; rememberPick(); go(homeState()); },
   reset: function(){
