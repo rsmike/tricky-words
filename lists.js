@@ -1,13 +1,18 @@
 /*
   WORD LISTS - this is the only file you edit each week.
 
-  Paste each new list at the TOP of the array. The app opens the list with the
-  newest "date" by default; older ones stay reachable via "Other lists".
+  Paste each new list at the TOP of the array. The app opens the newest list of the
+  child's own group (see "tag"); everything else stays reachable via "Other lists".
 
   List fields
     id      required. Never change it once published - saved stars are keyed by it.
     title   shown as the page heading.
-    date    YYYY-MM-DD. Decides which list counts as the latest.
+    tag     optional. The group the list is for, e.g. "espresso" or "cappuccino". Each device remembers
+            the tag of the last list it opened and opens the newest list WITH THAT TAG. Spell it exactly
+            the same every week (case does not matter) - a typo silently creates a new group.
+            Leave the tag out for a list meant for everyone (e.g. a midterm set): while it is the newest
+            list it is shown to all groups and every device forgets its remembered tag.
+    date    YYYY-MM-DD. Decides which list counts as the latest within its tag.
     words   array, see below.
 
   Word fields
@@ -23,9 +28,55 @@
 window.WORD_LISTS = [
 
   {
-    id: "2026-09-17-a-words",
-    title: "A words",
-    date: "2026-09-17",
+    id: "2026-09-14-a-words-cappuccino",
+    tag: "cappuccino",
+    title: "Week 1",
+    date: "2026-09-14",
+    words: [
+      { w: "actually",  m: "really, in fact",                    chunks: "ac|tu|al|ly",   decoys: "ks",
+        s: "I thought the test was today, but it is {w} tomorrow.",
+        tip: "*actual* + *ly*, so there are two l's." },
+      { w: "address",   m: "where a house or building is",       chunks: "ad|dress",      decoys: "ai",
+        s: "Please write your {w} on the form, including the postcode.",
+        tip: "Two d's and two s's: *add* + *ress*. Think: add your address." },
+      { w: "angel",     m: "a heavenly being with wings",        chunks: "an|gel",        decoys: "jl",
+        s: "My little sister played an {w} with silver wings in the school play.",
+        tip: "It ends in *gel*, like hair gel. Don't mix it up with angle." },
+      { w: "angle",     m: "the corner where two lines meet",    chunks: "an|gle",        decoys: "ua",
+        s: "A square has a right {w} at every corner.",
+        tip: "It ends *le*, like triangle and rectangle." },
+      { w: "answer",    m: "a reply to a question",              chunks: "an|swer",       decoys: "uc",
+        s: "Put your hand up if you know the {w} to question five.",
+        tip: "A silent *w* hides in the middle. Say an - *swer* to remember it." },
+      { w: "appear",    m: "come into sight",                    chunks: "ap|pear",       decoys: "ei",
+        s: "Wait until dark and the stars will {w} one by one.",
+        tip: "Two p's, then *ear* at the end." },
+      { w: "argue",     m: "disagree out loud, quarrel",         chunks: "ar|gue",        decoys: "yw",
+        s: "My brothers always {w} about whose turn it is on the console.",
+        tip: "It ends *gue* with a silent *ue*, like tongue." },
+      { w: "argument",  m: "a quarrel between people",           chunks: "ar|gu|ment",    decoys: "ea",
+        s: "They had a loud {w} about who had scored the goal.",
+        tip: "The *e* drops out before *ment*: *argu* + *ment*, never argue-ment." },
+      { w: "arrow",     m: "a pointed stick shot from a bow",    chunks: "ar|row",        decoys: "oe",
+        s: "Robin Hood fired an {w} straight into the middle of the target.",
+        tip: "Two r's, then *row* at the end." },
+      { w: "available", m: "free and ready to use",              chunks: "a|vail|a|ble",  decoys: "ie",
+        s: "Is the football pitch {w} after school, or is it booked?",
+        tip: "*avail* + *able*. The middle is *ai*, like sail, and it ends *able*, not ible." },
+      { w: "awful",     m: "very bad",                           chunks: "aw|ful",        decoys: "ol",
+        s: "The bin smelt so {w} that we all held our noses.",
+        tip: "*aw* + *ful*. Only one *l*, and no e after the w." },
+      { w: "automatic", m: "works by itself",                    chunks: "au|to|mat|ic",  decoys: "ok",
+        s: "The {w} doors slid open as we walked up to the shop.",
+        tip: "It starts *au*, like August. *auto* means self. It ends *ic*, with no k." }
+    ]
+  },
+
+  {
+    id: "2026-09-14-a-words",
+    tag: "espresso",
+    title: "Week 1",
+    date: "2026-09-14",
     words: [
       { w: "abstain",    m: "choose not to",          chunks: "ab|stain",      decoys: "ey",
         s: "I will {w} from sweets until Friday.",
@@ -67,9 +118,10 @@ window.WORD_LISTS = [
   },
 
   {
-    id: "2026-09-10-accident-to-special",
-    title: "Accident to special",
-    date: "2026-09-10",
+    id: "2026-09-07-accident-to-special",
+    tag: "",
+    title: "First test",
+    date: "2026-09-07",
     words: [
       { w: "accident",    m: "something that goes wrong by mistake", chunks: "ac|ci|dent",        decoys: "ks",
         s: "I spilt the juice by {w}, not on purpose.",

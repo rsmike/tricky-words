@@ -33,13 +33,23 @@ gh repo create tricky-words --public --source=. --push
 3. Paste the new list block at the **top** of the array, straight after `window.WORD_LISTS = [`. Mind the comma after its closing `}`.
 4. **Commit changes**. It is live in a minute or two. GitHub caches files for up to 10 minutes, so a device that had the page open may need that long plus a reload.
 
-The list with the newest `date` opens by default. Older lists are under **Other lists** on the home screen. If a child picks an older list it stays selected for that tab, until a newer list is published - then the app jumps to the new one.
+### Groups (tags)
+
+Every list carries a `tag`, e.g. `espresso` or `cappuccino`. Each device remembers the tag of the last list it opened (localStorage) and always opens the **newest list with that tag**. So with two lists a week, cappuccino children land on the new cappuccino list even if the espresso one was published later.
+
+- First visit on a device (nothing remembered yet): the newest list overall opens. If that is the wrong group, switch once and it sticks.
+- Switching group: **Other lists**, open any list of the other group. That group is then remembered.
+- **A list with no tag is for everyone** (e.g. a common midterm set). While it is the newest list overall, every device shows it and forgets its remembered tag. This doubles as the way to flush stale tags. Once tagged lists resume, everyone gets the newest one and switches by hand once.
+- A list picked by hand from **Other lists** stays selected for that tab until the device's default list changes.
+- A remembered tag that no longer exists in `lists.js` is ignored.
+- Spell the tag identically every week. `capuccino` next to `cappuccino` silently creates a third group.
 
 ### List format
 
 ```js
 {
-  id: "2026-09-24-b-words",   // unique, and never changed afterwards (stars are saved against it)
+  id: "2026-09-24-b-words-espresso",   // unique, and never changed afterwards (stars are saved against it)
+  tag: "espresso",            // the group; spelt exactly the same every week. Omit for a list meant for everyone
   title: "B words",
   date: "2026-09-24",         // YYYY-MM-DD
   words: [

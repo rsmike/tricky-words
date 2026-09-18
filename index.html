@@ -275,6 +275,11 @@ button.tile:active{transform:translateY(2px);box-shadow:0 2px 0 var(--tile-deep)
 .steps b{font-weight:600}
 svg.inl{width:1.25em;height:1.25em;vertical-align:-.25em;color:var(--chunk-a)}
 .tip.wide{max-width:none;font-size:1.05rem}
+
+/* groups (tags) */
+.listline .tag{margin-left:0}
+.grouphead{font-family:var(--display);font-weight:600;font-size:1.25rem;margin-top:6px}
+.grouphead .lr-meta{font-family:var(--body);font-weight:400;margin-left:8px}
 </style>
 </head>
 <body>
@@ -351,12 +356,14 @@ function tidyLists(raw){
     if (ids[id]){ console.warn('lists.js: duplicate id "' + id + '"'); id += '-' + idx; }
     ids[id] = 1;
     var date = parseDate(r.date), by = {}, extra = {};
+    var tag = String(r.tag || '').trim().toLowerCase();
     words.forEach(function(x){
       by[x.w] = x;
       x.w.split('').forEach(function(c){ if (!/[a-z]/.test(c)) extra[c] = 1; });
     });
     return {
       id:id, title:title, idx:idx, date:date, words:words, by:by, extra:Object.keys(extra).sort(),
+      tag:tag, tagName: tag ? tag.charAt(0).toUpperCase() + tag.slice(1) : 'For everyone',
       dateStr: date ? date.toLocaleDateString('en-GB', {day:'numeric', month:'long', year:'numeric'}) : ''
     };
   }).filter(Boolean);
@@ -386,22 +393,6 @@ var helpSeen = (function(){ try { return localStorage.getItem(HELP_KEY) === '1';
 
 var PICK_KEY = 'trickywords:v2:picked';
 function byId(id){ return LISTS.filter(function(l){ return l.id === id; })[0] || null; }
-function initialList(){
-  if (!LISTS.length) return null;
-  try {
-    var p = JSON.parse(sessionStorage.getItem(PICK_KEY));
-    /* a pick only sticks while the latest list is still the same one */
-    if (p && p.latest === LISTS[0].id && byId(p.id)) return byId(p.id);
-  } catch(e){}
-  return LISTS[0];
-}
-function rememberPick(){
-  try {
-    if (L === LISTS[0]) sessionStorage.removeItem(PICK_KEY);
-    else sessionStorage.setItem(PICK_KEY, JSON.stringify({id:L.id, latest:LISTS[0].id}));
-  } catch(e){}
-}
-L = initialList();
 
 /* ---------- saved stars: this device only, keyed by list id then word ---------- */
 var KEY = 'trickywords:v2:stars';
@@ -417,6 +408,51 @@ function award(w, k){
   if (!stars[L.id][w]) stars[L.id][w] = {};
   stars[L.id][w][k] = 1; save();
 }
+/* ---------- groups (tags) ----------
+   A list may carry a tag such as "espresso" or "cappuccino". The tag of the last list opened is
+   remembered on this device, and the app opens the newest list WITH THAT TAG, so with two lists a
+   week nobody is bounced onto the other group's list.
+   A list with NO tag is for everyone: while it is the newest list overall it is shown to all groups
+   and the remembered tag is cleared. After that, everyone simply gets the newest list and switches
+   by hand once. A stuck tag is worse than a wrong list. */
+var TAG_KEY = 'trickywords:v2:tag';
+var TAGS = [];                       /* distinct tags, the one with the newest list first */
+LISTS.forEach(function(l){ if (TAGS.indexOf(l.tag) === -1) TAGS.push(l.tag); });
+function latestFor(tag){ return LISTS.filter(function(l){ return l.tag === tag; })[0] || LISTS[0]; }
+function savedTag(){
+  var t = null;
+  try { t = localStorage.getItem(TAG_KEY); } catch(e){}
+  return (t && TAGS.indexOf(t) !== -1) ? t : null;       /* unknown or retired tags count as none */
+}
+function clearTag(){ try { localStorage.removeItem(TAG_KEY); } catch(e){} }
+/* the list this device should open by default */
+function target(){
+  var newest = LISTS[0];
+  if (!newest.tag){ clearTag(); return newest; }          /* untagged newest list: for everyone */
+  var tag = savedTag();
+  return tag ? latestFor(tag) : newest;
+}
+function initialList(){
+  if (!LISTS.length) return null;
+  var t = target();
+  try {
+    var p = JSON.parse(sessionStorage.getItem(PICK_KEY));
+    /* a list picked by hand in this tab sticks until the default list changes */
+    if (p && p.latest === t.id && byId(p.id)) return byId(p.id);
+  } catch(e){}
+  return t;
+}
+function rememberPick(){
+  try { if (L.tag) localStorage.setItem(TAG_KEY, L.tag); else clearTag(); } catch(e){}
+  try {
+    var t = target();
+    if (L === t) sessionStorage.removeItem(PICK_KEY);
+    else sessionStorage.setItem(PICK_KEY, JSON.stringify({id:L.id, latest:t.id}));
+  } catch(e){}
+}
+L = initialList();
+if (L) rememberPick();
+
 function starCountFor(l){
   var n = 0;
   l.words.forEach(function(x){ KINDS.forEach(function(k){ if (hasIn(l, x.w, k)) n++; }); });
@@ -511,13 +547,13 @@ VIEWS.home = function(){
   return screenOpen('home', hero.w.length) +
     '<header class="home-head"><h1>' + esc(L.title) + '</h1>' +
       '<p class="starcount"><span class="star on">★</span> ' + starCountFor(L) + ' of ' + (n * 3) + ' stars</p></header>' +
-    '<p class="listline"><span>' + n + ' words' + (L.dateStr ? ', added ' + L.dateStr : '') + '</span>' +
+    '<p class="listline">' + (L.tag ? '<span class="tag">' + esc(L.tagName) + '</span>' : '') + '<span>' + n + ' words' + (L.dateStr ? ', added ' + L.dateStr : '') + '</span>' +
       (LISTS.length > 1 ? '<button class="btn quiet small" data-act="lists">Other lists</button>' : '') +
       '<span class="tools">' +
         (canSpeak ? '<button class="iconbtn' + (soundOn ? '' : ' off') + '" data-act="sound" aria-pressed="' + soundOn + '" aria-label="' + (soundOn ? 'Sound is on. Switch it off' : 'Sound is off. Switch it on') + '">' + (soundOn ? ICON_SOUND_ON : ICON_SOUND_OFF) + '</button>' : '') +
         '<button class="iconbtn help' + (!helpSeen && !STANDALONE ? ' hot' : ' off') + '" data-act="help" aria-label="How to add this to your Home Screen">?</button>' +
       '</span></p>' +
-    (L !== LISTS[0] ? '<div class="banner"><span>This is an older list. The newest one is <b>' + esc(LISTS[0].title) + '</b>.</span>' +
+    (L !== latestFor(L.tag) ? '<div class="banner"><span>This is an older list. The newest one' + (L.tag ? ' for ' + esc(L.tagName) : '') + ' is <b>' + esc(latestFor(L.tag).title) + '</b>.</span>' +
       '<button class="btn small solid" data-act="latest">Go to the latest list</button></div>' : '') +
     '<button class="hero" data-act="learnWord" data-w="' + esc(hero.w) + '" aria-label="' + esc(hero.w + ' means ' + hero.m) + '. Open this word.">' +
       '<span class="tiles">' + hero.w.split('').map(function(c){ return '<span class="tile">' + disp(c) + '</span>'; }).join('') + '</span>' +
@@ -579,16 +615,23 @@ VIEWS.help = function(){
   '</section>';
 };
 
+function listRow(l){
+  return '<li><button class="listrow' + (l === L ? ' current' : '') + '" data-act="pickList" data-id="' + esc(l.id) + '">' +
+    '<span class="lr-main"><span class="lr-title">' + esc(l.title) + (l === latestFor(l.tag) ? '<span class="tag">Latest</span>' : '') + '</span>' +
+    '<span class="lr-meta">' + l.words.length + ' words' + (l.dateStr ? ', added ' + l.dateStr : '') + '</span></span>' +
+    '<span class="lr-stars"><span class="star on">\u2605</span> ' + starCountFor(l) + ' of ' + (l.words.length * 3) + '</span>' +
+  '</button></li>';
+}
 VIEWS.lists = function(){
+  /* one section per group, the current group first */
+  var order = [L.tag].concat(TAGS.filter(function(t){ return t !== L.tag; }));
   return screenOpen() +
     '<div class="topbar"><button class="btn quiet small" data-act="home">Back</button><h2>Word lists</h2></div>' +
-    '<ul class="listpick">' + LISTS.map(function(l, i){
-      return '<li><button class="listrow' + (l === L ? ' current' : '') + '" data-act="pickList" data-id="' + esc(l.id) + '">' +
-        '<span class="lr-main"><span class="lr-title">' + esc(l.title) + (i === 0 ? '<span class="tag">Latest</span>' : '') + '</span>' +
-        '<span class="lr-meta">' + l.words.length + ' words' + (l.dateStr ? ', added ' + l.dateStr : '') + '</span></span>' +
-        '<span class="lr-stars"><span class="star on">★</span> ' + starCountFor(l) + ' of ' + (l.words.length * 3) + '</span>' +
-      '</button></li>';
-    }).join('') + '</ul></section>';
+    order.map(function(t){
+      var ls = LISTS.filter(function(l){ return l.tag === t; });
+      return (TAGS.length > 1 ? '<h3 class="grouphead">' + esc(ls[0].tagName) + (t && t === L.tag ? ' <span class="lr-meta">your group</span>' : '') + '</h3>' : '') +
+        '<ul class="listpick">' + ls.map(listRow).join('') + '</ul>';
+    }).join('') + '</section>';
 };
 
 VIEWS.learn = function(){
@@ -811,7 +854,7 @@ var ACT = {
     if (soundOn) speak(S.hero);
   },
   pickList: function(d){ var l = byId(d.id); if (l){ L = l; rememberPick(); } go(homeState()); },
-  latest: function(){ L = LISTS[0]; rememberPick(); go(homeState()); },
+  latest: function(){ L = latestFor(L.tag); rememberPick(); go(homeState()); },
   reset: function(){
     if (!S.confirmReset){ S.confirmReset = true; render(); return; }
     delete stars[L.id]; save(); go(homeState());

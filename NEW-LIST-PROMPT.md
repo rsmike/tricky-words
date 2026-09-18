@@ -1,6 +1,6 @@
 # Prompt: turn a photo of a word sheet into a lists.js block
 
-How to use: start a new chat with Claude, attach the photo(s) of this week's sheet, and paste everything below the line. Optionally add a line such as `Title: B words` or `Date: 2026-09-24`. For a fully merged file, also paste the current `lists.js`.
+How to use: start a new chat with Claude, attach the photo(s) of this week's sheet, and paste everything below the line. Add a line saying which group it is for, e.g. `Tag: cappuccino`, and optionally `Title: B words` or `Date: 2026-09-24`. For two groups in one week, send both photos and say which is which. For a fully merged file, also paste the current `lists.js`.
 
 ---
 
@@ -20,7 +20,8 @@ Knowing this will help you write good entries.
 
 ```js
 {
-  id: "2026-09-17-a-words",
+  id: "2026-09-17-a-words-espresso",
+  tag: "espresso",
   title: "A words",
   date: "2026-09-17",
   words: [
@@ -39,7 +40,9 @@ Knowing this will help you write good entries.
 
 ## Field by field
 
-**id** - `YYYY-MM-DD-short-slug`, lowercase with hyphens. Saved progress on every child's device is keyed by it, so it has to be unique and is never changed later.
+**id** - `YYYY-MM-DD-short-slug-tag`, lowercase with hyphens (the tag keeps it unique when two groups get a list with the same title in the same week). Saved progress on every child's device is keyed by it, so it has to be unique and is never changed later.
+
+**tag** - the class group the list is for. The groups are named after coffees; the ones in use so far are `espresso` and `cappuccino`. Each child's device remembers its group and opens the newest list carrying that tag, so the tag has to be spelt identically every week: lowercase, and corrected to the standard spelling even if the sheet's heading or my message misspells it (a sheet once arrived headed "CAPPUCCINIO"). Take the tag from my message, or failing that from the sheet's heading. If I say the list is for everyone (for example a common set before a midterm test), leave the `tag` line out altogether and drop the tag from the id: an untagged list is shown to every group and resets each device's remembered group, so only do this when I ask for it. If you cannot tell which group a sheet is for, ask me rather than guessing: a wrong tag sends the list to the wrong children, and a missing tag sends it to all of them. If I give a group name that is not in the list above, use it, but mention in your notes that it creates a new group.
 
 **date** - the date I give you; otherwise today's date. The app treats the list with the newest date as the current one.
 
@@ -76,6 +79,6 @@ If the sheet gives no clue for a word (a words-only spelling list), write one yo
 ## What to send back
 
 1. One `js` code block containing only the new list object with its trailing comma, ready to paste directly after the line `window.WORD_LISTS = [`. If I pasted my current `lists.js`, give me the complete updated file instead, with the new list first and everything else untouched.
-2. After the code block, a few short notes only where needed: meanings you had to write yourself, words you could not read with confidence (say what you guessed), suspected typos on the sheet, duplicate clues, American spellings, or a word whose clue uses an unusual sense.
+2. After the code block, a few short notes only where needed: the tag if you had to correct or infer it, meanings you had to write yourself, words you could not read with confidence (say what you guessed), suspected typos on the sheet, duplicate clues, American spellings, or a word whose clue uses an unusual sense.
 
-Before replying, please check every entry: the chunks rebuild the word exactly; the sentence has exactly one `{w}`, reads correctly with the word dropped in, and does not contain the word elsewhere; decoys are exactly two letters; the word count matches the sheet.
+Before replying, please check every entry: the chunks rebuild the word exactly; the sentence has exactly one `{w}`, reads correctly with the word dropped in, and does not contain the word elsewhere; decoys are exactly two letters; the tag is one of the known groups, spelt exactly (or deliberately absent); the word count matches the sheet.
