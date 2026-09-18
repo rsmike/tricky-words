@@ -618,7 +618,7 @@ VIEWS.help = function(){
 
 function listRow(l){
   return '<li><button class="listrow' + (l === L ? ' current' : '') + '" data-act="pickList" data-id="' + esc(l.id) + '">' +
-    '<span class="lr-main"><span class="lr-title">' + esc(l.title) + (l === latestFor(l.tag) ? '<span class="tag">Latest</span>' : '') + '</span>' +
+    '<span class="lr-main"><span class="lr-title">' + esc(l.title) + '</span>' +
     '<span class="lr-meta">' + l.words.length + ' words' + (l.dateStr ? ', added ' + l.dateStr : '') + '</span></span>' +
     '<span class="lr-stars"><span class="star on">\u2605</span> ' + starCountFor(l) + ' of ' + (l.words.length * 3) + '</span>' +
   '</button></li>';
