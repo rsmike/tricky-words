@@ -110,18 +110,23 @@ button.tile:active{transform:translateY(2px);box-shadow:0 2px 0 var(--tile-deep)
 .hero .tile:nth-child(even){transform:rotate(2.5deg) translateY(2px)}
 .hero-mean{font-size:1.25rem;color:var(--ink-soft)}
 .hero-mean b{color:var(--ink);font-weight:600}
-.modes{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.modes{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
 .mode{
-  text-align:left;padding:18px 22px;border-radius:20px;color:#fff;min-height:104px;
-  display:flex;flex-direction:column;justify-content:center;gap:2px;
+  position:relative;text-align:left;padding:18px 20px;border-radius:20px;color:#fff;min-height:104px;
+  display:flex;align-items:center;gap:14px;
 }
 .mode:active{transform:translateY(3px)}
-.mode-name{font-family:var(--display);font-weight:600;font-size:1.5rem;line-height:1.15}
-.mode-sub{font-size:1rem;opacity:.92}
-.m-learn{background:var(--primary);box-shadow:0 5px 0 var(--primary-deep)}
-.m-mean{background:var(--tile);color:var(--tile-ink);box-shadow:0 5px 0 var(--tile-deep)}
-.m-tiles{background:var(--green);box-shadow:0 5px 0 var(--green-deep)}
-.m-keys{background:var(--bottle);box-shadow:0 5px 0 var(--bottle-deep)}
+.mode-ico{
+  flex:none;width:52px;height:52px;border-radius:16px;display:grid;place-items:center;
+  font-size:1.7rem;line-height:1;background:rgba(255,255,255,.18)
+}
+.mode-text{display:flex;flex-direction:column;gap:2px;min-width:0}
+.mode-name{font-family:var(--display);font-weight:600;font-size:1.35rem;line-height:1.15}
+.mode-sub{font-size:.95rem;opacity:.92}
+.mode-star{position:absolute;top:10px;right:14px;color:var(--gold);font-size:1.2rem;line-height:1}
+.m-learn{grid-column:1 / -1;background:var(--primary);box-shadow:0 5px 0 var(--primary-deep)}
+.m-learn .mode-name{font-size:1.5rem}
+.mode.test{background:var(--green);box-shadow:0 5px 0 var(--green-deep)}
 .wordgrid{list-style:none;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px}
 .wordbtn{
   width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;
@@ -210,6 +215,9 @@ button.tile:active{transform:translateY(2px);box-shadow:0 2px 0 var(--tile-deep)
 @keyframes drop{from{transform:translateY(-10px) scale(.9);opacity:.3}}
 @keyframes pop{from{transform:scale(0) rotate(-40deg)}}
 
+@media (max-width:800px){
+  .modes{grid-template-columns:1fr 1fr}
+}
 @media (max-width:620px){
   body{font-size:16px}
   #app{padding-left:16px;padding-right:16px}
@@ -511,6 +519,14 @@ function chunksHTML(x, cls){
 function starsHTML(w){
   return KINDS.map(function(k){ return '<span class="star' + (has(w,k) ? ' on' : '') + '">★</span>'; }).join('');
 }
+/* home screen mode button: emoji on the left, name and blurb, and a star badge on the tests that win one */
+function modeBtn(cls, attrs, ico, name, sub, star){
+  return '<button class="mode ' + cls + '" ' + attrs + '>' +
+    '<span class="mode-ico" aria-hidden="true">' + ico + '</span>' +
+    '<span class="mode-text"><span class="mode-name">' + name + '</span><span class="mode-sub">' + sub + '</span></span>' +
+    (star ? '<span class="mode-star" aria-label="Wins a star">\u2605</span>' : '') +
+  '</button>';
+}
 function topbar(done, total){
   return '<div class="topbar">' +
     '<button class="btn quiet small" data-act="home">Home</button>' +
@@ -561,10 +577,10 @@ VIEWS.home = function(){
       '<span class="hero-mean">means <b>' + esc(hero.m) + '</b></span>' +
     '</button>' +
     '<div class="modes">' +
-      '<button class="mode m-learn" data-act="startLearn"><span class="mode-name">Learn the words</span><span class="mode-sub">Look, listen and read the spelling tips</span></button>' +
-      '<button class="mode m-mean" data-act="startQuiz"><span class="mode-name">Match the meanings</span><span class="mode-sub">Pick the right answer from four</span></button>' +
-      '<button class="mode m-tiles" data-act="startSpell" data-mode="t"><span class="mode-name">Spell with letter tiles</span><span class="mode-sub">Put the tiles in order. Watch out for extras</span></button>' +
-      '<button class="mode m-keys" data-act="startSpell" data-mode="k"><span class="mode-name">Spell on the keyboard</span><span class="mode-sub">The hard one. No letters given</span></button>' +
+      modeBtn('m-learn', 'data-act="startLearn"', '\uD83D\uDCD6', 'Learn the words', 'Look, listen and read the spelling tips', false) +
+      modeBtn('m-mean test', 'data-act="startQuiz"', '\uD83C\uDFAF', 'Match the meanings', 'Pick the right answer from four', true) +
+      modeBtn('m-tiles test', 'data-act="startSpell" data-mode="t"', '\uD83E\uDDE9', 'Spell with letter tiles', 'Put the tiles in order. Watch out for extras', true) +
+      modeBtn('m-keys test', 'data-act="startSpell" data-mode="k"', '\u2328\uFE0F', 'Spell on the keyboard', 'The hard one. No letters given', true) +
     '</div>' +
     '<h2>Your words</h2>' +
     '<ul class="wordgrid">' + L.words.map(function(x){
