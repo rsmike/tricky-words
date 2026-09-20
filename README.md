@@ -5,7 +5,7 @@ A small static page for learning weekly word lists: meanings and spellings. No b
 ```
 index.html      the app (never needs touching week to week)
 lists.js        all the word lists - the only file edited each week
-NEW-LIST-PROMPT.md   prompt for Claude: photo of the sheet in, lists.js block out
+CLAUDE.md       prompt for Claude: photo of the sheet in, lists.js block out
 fonts/          self-hosted Fredoka + Lexend (SIL Open Font License)
 icon*.png, manifest.webmanifest   home-screen icons, and the manifest that lets Android install it as an app
 ```

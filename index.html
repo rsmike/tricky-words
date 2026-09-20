@@ -137,6 +137,13 @@ button.tile:active{transform:translateY(2px);box-shadow:0 2px 0 var(--tile-deep)
 .wordbtn:active{background:var(--tint)}
 .wordbtn .stars{letter-spacing:2px;font-size:1.15rem;white-space:nowrap}
 .legend{color:var(--ink-soft);font-size:.9rem}
+.task{
+  display:flex;align-items:flex-start;gap:16px;width:100%;
+  background:var(--tint);border:2px solid var(--gold);border-radius:20px;padding:18px 22px;font-size:1.2rem;font-weight:500
+}
+.task-ico{flex:none;width:56px;height:56px;border-radius:16px;display:grid;place-items:center;font-size:1.9rem;line-height:1;background:var(--gold)}
+.task-text{display:flex;flex-direction:column;gap:8px;min-width:0}
+.task p{margin:0}
 .linkbtn{align-self:flex-start;color:var(--ink-soft);text-decoration:underline;text-underline-offset:4px;padding:10px 0;font-size:.9rem}
 
 /* top bar */
@@ -374,6 +381,7 @@ function tidyLists(raw){
     return {
       id:id, title:title, idx:idx, date:date, words:words, by:by, extra:Object.keys(extra).sort(),
       tag:tag, tagName: tag ? tag.charAt(0).toUpperCase() + tag.slice(1) : 'For everyone',
+      task: r.task ? String(r.task).trim() : '',
       dateStr: date ? date.toLocaleDateString('en-GB', {day:'numeric', month:'long', year:'numeric'}) : ''
     };
   }).filter(Boolean);
@@ -587,6 +595,7 @@ VIEWS.home = function(){
     '<ul class="wordgrid">' + L.words.map(function(x){
       return '<li><button class="wordbtn" data-act="learnWord" data-w="' + esc(x.w) + '"><span>' + esc(x.w) + '</span><span class="stars" aria-hidden="true">' + starsHTML(x.w) + '</span></button></li>';
     }).join('') + '</ul>' +
+    (L.task ? '<h2>Your task</h2><div class="task"><span class="task-ico" aria-hidden="true">\uD83D\uDCDD</span><span class="task-text">' + rich(L.task).replace(/\n\s*\n/g, '</p><p>').replace(/\n/g, '<br>').replace(/^/, '<p>') + '</p></span></div>' : '') +
     '<p class="legend">Every word has three stars: meanings, letter tiles and keyboard. Get a word right first time to win its star. <br>' +
     'Stars are saved on this device only. <button class="linkbtn" data-act="reset">' + (S.confirmReset ? 'Tap again to clear every star in this list' : 'Clear the stars for this list') + '</button></p>' +
   '</section>';

@@ -13,6 +13,8 @@
             Leave the tag out for a list meant for everyone (e.g. a midterm set): while it is the newest
             list it is shown to all groups and every device forgets its remembered tag.
     date    YYYY-MM-DD. Decides which list counts as the latest within its tag.
+    task    optional. Homework for the week, shown under "Your task" below the word grid.
+            *asterisks* make text bold; a blank line starts a new paragraph.
     words   array, see below.
 
   Word fields
@@ -26,6 +28,98 @@
   Bare minimum that works:  { w: "almond", m: "a nut" }
 */
 window.WORD_LISTS = [
+
+  {
+    id: "2026-09-21-b-words-espresso",
+    tag: "espresso",
+    title: "Week 2",
+    date: "2026-09-21",
+    task: "Pick one word from the spellings and create an acrostic poem from it. Lots of house points on offer for this task!",
+    words: [
+      { w: "banal",       m: "dull and ordinary",                chunks: "ba|nal",         decoys: "ne",
+        s: "The film was so {w} that I guessed the ending in five minutes.",
+        tip: "One *n*, and it ends in *nal*, like final." },
+      { w: "barrage",     m: "lots of things at once",           chunks: "bar|rage",       decoys: "ij",
+        s: "The teacher faced a {w} of questions about the school trip.",
+        tip: "*bar* + *rage*: two r's, and it ends *age* like garage." },
+      { w: "beguiling",   m: "charming in a tricky way",         chunks: "be|guil|ing",    decoys: "ey",
+        s: "The fox gave the hens a {w} smile before asking to come in.",
+        tip: "A silent *u* after the *g*, like in guide. The *e* of beguile drops before *ing*." },
+      { w: "beige",       m: "a pale sandy colour",              chunks: "beige",          decoys: "ay",
+        s: "Grandad painted the whole living room {w}, which is a bit boring.",
+        tip: "*ei* like in eight, then a silent *e* at the end." },
+      { w: "bequeath",    m: "leave to someone in a will",       chunks: "be|queath",      decoys: "ew",
+        s: "In her will, Great Aunt Ivy chose to {w} her parrot to me.",
+        tip: "*be* + *queath*: q is followed by *u*, and it has *ea* like breathe." },
+      { w: "beleaguered", m: "surrounded by troubles",           chunks: "be|lea|guered",  decoys: "eu",
+        s: "The {w} goalkeeper faced shot after shot all through the second half.",
+        tip: "*be* + *league* + *red*: a league of troubles, with a silent *u* after the *g*." },
+      { w: "bereavement", m: "sadness when someone dies",        chunks: "be|reave|ment",  decoys: "ie",
+        s: "After Grandad died, the school gave Dad some time off for {w}.",
+        tip: "*be* + *reave* + *ment*: it has *ea* like leave, and keeps its *e* before ment." },
+      { w: "berserk",     m: "wild with anger",                  chunks: "ber|serk",       decoys: "zc",
+        s: "The dog went {w} when the postman pushed the letters through the door.",
+        tip: "*ber* + *serk*: two r's, and an *s* in the middle, not a z." },
+      { w: "bewildered",  m: "very confused",                    chunks: "be|wil|dered",   decoys: "li",
+        s: "The new pupil looked {w} by the maze of school corridors.",
+        tip: "*be* + *wild* + *ered*: there is a wild inside it, with one *l*." },
+      { w: "binoculars",  m: "a tool for seeing far away",       chunks: "bi|noc|u|lars",  decoys: "ke",
+        s: "Through the {w}, we could see an owl on the far tree.",
+        tip: "*bi* means two, then *noc* + *u* + *lars*: one c and no k." },
+      { w: "bivouac",     m: "a rough camp with no tent",        chunks: "bi|vou|ac",      decoys: "wk",
+        s: "We built a {w} from branches and slept under the stars.",
+        tip: "*bi* + *vou* + *ac*: the *ou* sounds like oo, and it ends *ac* with no k." },
+      { w: "buffoon",     m: "a silly, clumsy person",           chunks: "buf|foon",       decoys: "ue",
+        s: "The clown acted like a total {w}, tripping over his own huge shoes.",
+        tip: "Two f's and two o's: *buff* + *oon*, like balloon." }
+    ]
+  },
+
+  {
+    id: "2026-09-21-b-words-cappuccino",
+    tag: "cappuccino",
+    title: "Week 2",
+    date: "2026-09-21",
+    task: "Pick one word from the spellings and create an acrostic poem from it. Lots of house points on offer for this task!",
+    words: [
+      { w: "believe",     m: "think something is true",          chunks: "be|lieve",       decoys: "ai",
+        s: "I {w} our team can win the cup if we practise every day.",
+        tip: "*be* + *lieve*: *i* before *e*. Never believe a *lie*: b-e-lie-v-e." },
+      { w: "below",       m: "underneath something",             chunks: "be|low",         decoys: "le",
+        s: "The cat hid {w} the table while the vacuum cleaner was on.",
+        tip: "One *l*: *be* + *low*. Two l's makes bellow, which is a shout." },
+      { w: "beware",      m: "watch out for",                    chunks: "be|ware",        decoys: "hi",
+        s: "The sign on the gate said {w} of the dog, but he only licked us.",
+        tip: "*be* + *ware*, like hardware. Not wear." },
+      { w: "beyond",      m: "further away than",                chunks: "be|yond",        decoys: "ui",
+        s: "The park is just {w} the church, past the big oak tree.",
+        tip: "*be* + *yond*: y-o-n-d, like pond with a y." },
+      { w: "biscuit",     m: "a crunchy baked snack",            chunks: "bis|cuit",       decoys: "ke",
+        s: "Gran always lets me dunk my {w} in her cup of tea.",
+        tip: "*bis* + *cuit*: the *u* is silent, like in build. B-i-s-c-u-i-t." },
+      { w: "breakfast",   m: "the first meal of the day",        chunks: "break|fast",     decoys: "ce",
+        s: "We had pancakes for {w} on Saturday, with far too much syrup.",
+        tip: "*break* + *fast*: you break your night-time fast. It keeps *ea* even though it sounds like breck." },
+      { w: "breathe",     m: "take air in and out",              chunks: "breath|e",       decoys: "ei",
+        s: "Slow down and {w} deeply before you start your spelling test.",
+        tip: "*breath* + *e*: the extra *e* on the end makes the *ea* say ee. Breathe is the doing word." },
+      { w: "building",    m: "a house, shop or school",          chunks: "build|ing",      decoys: "ey",
+        s: "The tallest {w} in town is the old church with the pointy spire.",
+        tip: "*build* + *ing*: a silent *u* before the *i*, like biscuit." },
+      { w: "burger",      m: "a meat patty in a bun",            chunks: "bur|ger",        decoys: "ea",
+        s: "Dad flipped a {w} on the barbecue and dropped it in the flowerbed.",
+        tip: "*bur* + *ger*: u then e. It is short for hamburger." },
+      { w: "burglar",     m: "someone who breaks in and steals", chunks: "burg|lar",       decoys: "ue",
+        s: "The {w} tiptoed past the sleeping dog, but tripped over the cat.",
+        tip: "*burg* + *lar*: no *u* between the g and the l, and it ends *lar* not ler." },
+      { w: "business",    m: "buying and selling things",        chunks: "bus|i|ness",     decoys: "sz",
+        s: "Mum runs a cake {w} from our kitchen, so the house always smells lovely.",
+        tip: "*bus* + *i* + *ness*: a bus, an i, then ness. One s, then two." },
+      { w: "busy",        m: "having lots to do",                chunks: "bu|sy",          decoys: "zi",
+        s: "The bees were {w} all afternoon, buzzing from flower to flower.",
+        tip: "*bu* + *sy*: it looks like bus with a y, but it sounds like bizzy." }
+    ]
+  },
 
   {
     id: "2026-09-14-a-words-cappuccino",
