@@ -1,6 +1,6 @@
 # Prompt: turn a photo of a word sheet into a lists.js block
 
-How to use: start a new chat with Claude, attach the photo(s) of this week's sheet, and paste everything below the line. Add a line saying which group it is for, e.g. `Tag: cappuccino`, and optionally `Title: B words` or `Date: 2026-09-24`. For two groups in one week, send both photos and say which is which. For a fully merged file, also paste the current `lists.js`.
+How to use: start a new chat with Claude, attach the photo(s) of this week's sheet, and paste everything below the line. Add a line saying which group it is for, e.g. `Tag: cappuccino`, and optionally `Title: B words`, `Date: 2026-09-24` or `Task: ...` for the week's homework. For two groups in one week, send both photos and say which is which. For a fully merged file, also paste the current `lists.js`.
 
 ---
 
@@ -15,6 +15,7 @@ Knowing this will help you write good entries.
 - **Spelling with tiles** shows the meaning and the example sentence with the word blanked out, then offers the word's letters scrambled together with two "decoy" letters that do not belong.
 - **Spelling on a keyboard** shows the same clue with no letters given.
 - The sentence is also read aloud by the browser's text-to-speech, with the word put back in.
+- **Your task** is an optional homework note shown under the word grid on the home page.
 
 ## Format
 
@@ -24,6 +25,7 @@ Knowing this will help you write good entries.
   tag: "espresso",
   title: "A words",
   date: "2026-09-17",
+  task: "Pick one word and write an acrostic poem from it. House points on offer!",
   words: [
     { w: "abundant",   m: "lots of",                chunks: "a|bun|dant",    decoys: "eo",
       s: "Blackberries were {w} along the path, so we filled three tubs.",
@@ -45,6 +47,8 @@ Knowing this will help you write good entries.
 **tag** - the class group the list is for. The groups are named after coffees; the ones in use so far are `espresso` and `cappuccino`. Each child's device remembers its group and opens the newest list carrying that tag, so the tag has to be spelt identically every week: lowercase, and corrected to the standard spelling even if the sheet's heading or my message misspells it (a sheet once arrived headed "CAPPUCCINIO"). Take the tag from my message, or failing that from the sheet's heading. If I say the list is for everyone (for example a common set before a midterm test), leave the `tag` line out altogether and drop the tag from the id: an untagged list is shown to every group and resets each device's remembered group, so only do this when I ask for it. If you cannot tell which group a sheet is for, ask me rather than guessing: a wrong tag sends the list to the wrong children, and a missing tag sends it to all of them. If I give a group name that is not in the list above, use it, but mention in your notes that it creates a new group.
 
 **date** - the date I give you; otherwise today's date. The app treats the list with the newest date as the current one.
+
+**task** - optional. The week's homework, copied verbatim from my message or the sheet. Leave the line out if there is none. `*asterisks*` make text bold; a blank line (`\n\n`) starts a new paragraph.
 
 **title** - the one I give you; otherwise the sheet's own heading if it has a meaningful one ("Quick memory clues" is not one). Failing that, derive something short: "B words" if the words share a first letter, else "Week of 24 September".
 
