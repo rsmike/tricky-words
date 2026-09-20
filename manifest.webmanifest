@@ -1,7 +1,7 @@
 {
-  "name": "Tricky words",
+  "name": "Tricky words - Year 5, Pointers School",
   "short_name": "Tricky words",
-  "description": "Weekly tricky words: meanings and spellings.",
+  "description": "The weekly spelling and vocabulary list for Year 5 at Pointers School: meanings and spellings.",
   "start_url": ".",
   "scope": ".",
   "display": "standalone",
