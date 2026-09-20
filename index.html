@@ -135,7 +135,9 @@ button.tile:active{transform:translateY(2px);box-shadow:0 2px 0 var(--tile-deep)
   font-weight:600;font-size:1.1rem;
 }
 .wordbtn:active{background:var(--tint)}
-.wordbtn .stars{letter-spacing:2px;font-size:1.15rem;white-space:nowrap}
+.wordbtn .stars{flex:none;letter-spacing:2px;font-size:1.15rem;white-space:nowrap}
+.wordbtn.long{font-size:.95rem}       /* 11-13 letters */
+.wordbtn.xlong{font-size:.85rem;letter-spacing:-.01em}  /* 14+ letters */
 .legend{color:var(--ink-soft);font-size:.9rem}
 .task{
   display:flex;align-items:flex-start;gap:16px;width:100%;
@@ -593,7 +595,7 @@ VIEWS.home = function(){
     '</div>' +
     '<h2>Your words</h2>' +
     '<ul class="wordgrid">' + L.words.map(function(x){
-      return '<li><button class="wordbtn" data-act="learnWord" data-w="' + esc(x.w) + '"><span>' + esc(x.w) + '</span><span class="stars" aria-hidden="true">' + starsHTML(x.w) + '</span></button></li>';
+      return '<li><button class="wordbtn' + (x.w.length >= 14 ? ' xlong' : x.w.length >= 11 ? ' long' : '') + '" data-act="learnWord" data-w="' + esc(x.w) + '"><span>' + esc(x.w) + '</span><span class="stars" aria-hidden="true">' + starsHTML(x.w) + '</span></button></li>';
     }).join('') + '</ul>' +
     (L.task ? '<h2>Your task</h2><div class="task"><span class="task-ico" aria-hidden="true">\uD83D\uDCDD</span><span class="task-text">' + rich(L.task).replace(/\n\s*\n/g, '</p><p>').replace(/\n/g, '<br>').replace(/^/, '<p>') + '</p></span></div>' : '') +
     '<p class="legend">Every word has three stars: meanings, letter tiles and keyboard. Get a word right first time to win its star. <br>' +
