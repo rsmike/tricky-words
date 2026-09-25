@@ -177,6 +177,7 @@ button.tile:active{transform:translateY(2px);box-shadow:0 2px 0 var(--tile-deep)
 .hear:active{background:var(--tint)}
 .hear svg{width:22px;height:22px;flex:none}
 .hear-row{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.hear-short{display:none}
 
 /* quiz */
 .ask{font-size:1.2rem;color:var(--ink-soft);text-align:center}
@@ -234,9 +235,40 @@ button.tile:active{transform:translateY(2px);box-shadow:0 2px 0 var(--tile-deep)
   body{font-size:16px}
   #app{padding-left:16px;padding-right:16px}
   .modes,.opts{grid-template-columns:1fr}
-  .opt{min-height:68px;font-size:1.2rem}
+  .opt{min-height:56px;font-size:1.2rem}
   .key{font-size:1.25rem;border-radius:9px}
   .kb-row{gap:4px}
+  /* phones: a test has to fit on one screen, Check or Next included, with tiles big enough to tap.
+     The answer row is sized to the word itself (--w), not to a minimum of 10; the pool of tiles wraps
+     onto even rows of --pc tiles instead of squeezing onto one line */
+  #app{padding-top:max(12px,env(safe-area-inset-top));padding-bottom:max(14px,env(safe-area-inset-bottom))}
+  .screen.spell,.screen.quiz{gap:12px}
+  .screen.spell{--t:clamp(20px, calc((100vw - 33px - (var(--w) - 1) * 6px) / var(--w)), 40px)}
+  .pool{--t:clamp(30px, calc((100vw - 33px - (var(--pc) - 1) * 6px) / var(--pc)), 52px)}
+  .clue{gap:6px}
+  .clue .ask{font-size:1rem}
+  .clue-mean{font-size:1.5rem}
+  .clue-sent{font-size:1rem}
+  .hear{min-height:44px;padding:0 16px}
+  .hear-long{display:none}
+  .hear-short{display:inline}
+  .spell .feedback,.quiz .feedback{font-size:1rem;min-height:3em}
+  .spell .btn,.quiz .btn{min-height:56px;padding:0 16px}
+  .quiz .prompt{padding:4px 0;gap:8px}
+  .quiz .ask{font-size:1rem}
+  .opts{gap:10px}
+  /* spare height goes above the answer, so the answer, the message and the tiles stay together at the bottom */
+  .spell .clue + *{margin-top:auto}
+  .spell .bottom{margin-top:0}
+  .answer.won{flex-wrap:nowrap}
+  .bigstar{margin-left:2px;font-size:calc(var(--t) * .95)}
+  .key{height:44px}
+}
+@media (max-width:620px) and (max-height:600px){
+  /* iPhone SE and the like, in Safari */
+  .clue .ask{display:none}
+  .key{height:40px}
+  .spell .btn{min-height:50px}
 }
 @media (max-height:720px) and (min-width:621px){
   .screen{gap:14px}
@@ -547,8 +579,18 @@ function topbar(done, total){
     '<span class="count">' + Math.min(done + 1, total) + ' of ' + total + '</span>' +
   '</div>';
 }
-function screenOpen(cls, n){
-  return '<section class="screen ' + (cls || '') + '" style="--n:' + Math.max(10, n || 10) + '">';
+function screenOpen(cls, n, vars){
+  return '<section class="screen ' + (cls || '') + '" style="--n:' + Math.max(10, n || 10) + (vars || '') + '">';
+}
+/* phones: tiles per row in the tile pool, so the rows come out even and the tiles stay big */
+function poolCols(p){
+  var rows = Math.ceil(p / (p > 14 ? 8 : 7)) || 1;
+  return Math.ceil(p / rows) || 1;
+}
+/* "Hear the word" on wider screens, just "Word" on a phone, where the pair must fit on one line */
+function hearBtn(act, label){
+  return '<button class="hear" data-act="' + act + '" aria-label="Hear the ' + label + '">' + ICON +
+    '<span class="hear-long">Hear the ' + label + '</span><span class="hear-short">' + label.charAt(0).toUpperCase() + label.slice(1) + '</span></button>';
 }
 
 /* ---------- state ---------- */
@@ -703,7 +745,7 @@ VIEWS.quiz = function(){
       ? 'Yes! <b>' + esc(x.w) + '</b> = ' + esc(x.m)
       : 'Not quite. <b>' + esc(x.w) + '</b> = ' + esc(x.m) + '.<br>This one will come back later.';
   }
-  return screenOpen() + topbar(S.i, S.queue.length) +
+  return screenOpen('quiz') + topbar(S.i, S.queue.length) +
     '<div class="prompt">' + prompt + '</div>' +
     '<div class="opts">' + opts + '</div>' +
     '<p class="feedback" role="status">' + fb + '</p>' +
@@ -717,8 +759,7 @@ VIEWS.spell = function(){
     '<p class="ask">Spell the word that means</p>' +
     '<p class="clue-mean">' + esc(x.m) + '</p>' +
     (x.blank ? '<p class="clue-sent">' + esc(x.s).replace('{w}', '<span class="blank"></span>') + '</p>' : '') +
-    (hearable() ? '<div class="hear-row"><button class="hear" data-act="hear">' + ICON + ' Hear the word</button>' +
-                (x.s ? '<button class="hear" data-act="hearSent">' + ICON + ' Hear the sentence</button>' : '') + '</div>' : '') +
+    (hearable() ? '<div class="hear-row">' + hearBtn('hear', 'word') + (x.s ? hearBtn('hearSent', 'sentence') : '') + '</div>' : '') +
   '</div>';
 
   var answer = '', fb = S.msg || '', bottom = '';
@@ -733,7 +774,7 @@ VIEWS.spell = function(){
     }).join('') + '<span class="caret"></span></div>';
 
     if (tilesMode){
-      bottom = '<div class="tiles">' + S.pool.map(function(t){
+      bottom = '<div class="tiles pool">' + S.pool.map(function(t){
         var used = S.typed.indexOf(t.id) !== -1;
         return '<button class="tile' + (used ? ' used' : '') + '" data-act="tile" data-id="' + t.id + '"' + (used ? ' disabled aria-hidden="true"' : '') + '>' + disp(t.ch) + '</button>';
       }).join('') + '</div>' +
@@ -753,7 +794,7 @@ VIEWS.spell = function(){
       '<button class="btn go" data-act="check"' + (letters.length ? '' : ' disabled') + '>Check</button>';
     }
   } else if (S.phase === 'correct'){
-    answer = '<div class="tiles answer">' + x.w.split('').map(function(c){ return '<span class="tile good">' + disp(c) + '</span>'; }).join('') +
+    answer = '<div class="tiles answer won">' + x.w.split('').map(function(c){ return '<span class="tile good">' + disp(c) + '</span>'; }).join('') +
       (S.firstTry ? '<span class="bigstar" aria-label="Star won">★</span>' : '') + '</div>';
     bottom = '<button class="btn" data-act="nextSpell">Next word</button>';
   } else { /* reveal */
@@ -761,7 +802,8 @@ VIEWS.spell = function(){
     bottom = '<button class="btn" data-act="nextSpell">Next word</button>';
   }
 
-  return screenOpen('', x.w.length + 1) + topbar(S.i, S.queue.length) + clue + answer +
+  return screenOpen('spell', x.w.length + 1, ';--w:' + (x.w.length + 1) + ';--pc:' + poolCols(S.pool.length)) +
+    topbar(S.i, S.queue.length) + clue + answer +
     '<p class="feedback" role="status">' + fb + '</p>' +
     '<div class="bottom">' + bottom + '</div>' +
   '</section>';
@@ -916,6 +958,12 @@ var ACT = {
     }
     S.answered = {chosen:d.w, correct:correct};
     render(); speak(item.w);
+    /* small phones: if Next landed below the screen, bring it up */
+    var next = app.querySelector('[data-act="nextQ"]');
+    if (next && next.getBoundingClientRect().bottom > window.innerHeight){
+      try { window.scrollTo({top:document.documentElement.scrollHeight, behavior:'smooth'}); }
+      catch(e){ window.scrollTo(0, document.documentElement.scrollHeight); }
+    }
   },
   nextQ: function(){
     if (S.i + 1 >= S.queue.length){ go({screen:'done', kind:'m', right:S.right, missed:S.missed}); return; }
