@@ -264,9 +264,8 @@ button.tile:active{transform:translateY(2px);box-shadow:0 2px 0 var(--tile-deep)
   .bigstar{margin-left:2px;font-size:calc(var(--t) * .95)}
   .key{height:44px}
   /* phones: "Other lists" becomes an icon so the date and the three buttons share one line */
-  .listsbtn{width:48px;min-height:48px;padding:0;display:grid;place-items:center}
-  .btn.listsbtn svg{display:block;width:24px;height:24px}
-  .listsbtn span{display:none}
+  .lists-text{display:none}
+  .iconbtn.lists-icon{display:grid}
 }
 @media (max-width:620px) and (max-height:600px){
   /* iPhone SE and the like, in Safari */
@@ -309,7 +308,7 @@ button.tile:active{transform:translateY(2px);box-shadow:0 2px 0 var(--tile-deep)
 .iconbtn:active{transform:translateY(2px);box-shadow:0 1px 0 var(--line)}
 .iconbtn svg{width:24px;height:24px}
 .iconbtn.off{color:var(--ink-soft)}
-.listsbtn svg{display:none}
+.lists-icon{display:none}
 .iconbtn.hot{background:var(--tile);border-color:var(--tile-deep);box-shadow:0 3px 0 var(--tile-deep);color:var(--tile-ink)}
 .iconbtn.hot::after{
   content:"";position:absolute;inset:-6px;border-radius:19px;border:3px solid var(--tile);
@@ -627,7 +626,8 @@ VIEWS.home = function(){
       '<p class="starcount"><span class="star on">★</span> ' + starCountFor(L) + ' of ' + (n * 3) + ' stars</p></header>' +
     '<p class="listline"><span class="listmeta">' + n + ' words' + (L.dateStr ? '<br> ' + L.dateStr : '') + '</span>' +
       '<span class="tools">' +
-        (LISTS.length > 1 ? '<button class="btn quiet small listsbtn" data-act="lists" aria-label="Other lists">' + ICON_LISTS + '<span>Other lists</span></button>' : '') +
+        (LISTS.length > 1 ? '<button class="btn quiet small lists-text" data-act="lists">Other lists</button>' +
+                            '<button class="iconbtn lists-icon" data-act="lists" aria-label="Other lists">' + ICON_LISTS + '</button>' : '') +
         (canSpeak ? '<button class="iconbtn' + (soundOn ? '' : ' off') + '" data-act="sound" aria-pressed="' + soundOn + '" aria-label="' + (soundOn ? 'Sound is on. Switch it off' : 'Sound is off. Switch it on') + '">' + (soundOn ? ICON_SOUND_ON : ICON_SOUND_OFF) + '</button>' : '') +
         '<button class="iconbtn help' + (!helpSeen && !STANDALONE ? ' hot' : ' off') + '" data-act="help" aria-label="How to add this to your Home Screen">?</button>' +
       '</span></p>' +
