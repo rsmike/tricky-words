@@ -263,6 +263,10 @@ button.tile:active{transform:translateY(2px);box-shadow:0 2px 0 var(--tile-deep)
   .answer.won{flex-wrap:nowrap}
   .bigstar{margin-left:2px;font-size:calc(var(--t) * .95)}
   .key{height:44px}
+  /* phones: "Other lists" becomes an icon so the date and the three buttons share one line */
+  .listsbtn{width:48px;min-height:48px;padding:0;display:grid;place-items:center}
+  .btn.listsbtn svg{display:block;width:24px;height:24px}
+  .listsbtn span{display:none}
 }
 @media (max-width:620px) and (max-height:600px){
   /* iPhone SE and the like, in Safari */
@@ -305,6 +309,7 @@ button.tile:active{transform:translateY(2px);box-shadow:0 2px 0 var(--tile-deep)
 .iconbtn:active{transform:translateY(2px);box-shadow:0 1px 0 var(--line)}
 .iconbtn svg{width:24px;height:24px}
 .iconbtn.off{color:var(--ink-soft)}
+.listsbtn svg{display:none}
 .iconbtn.hot{background:var(--tile);border-color:var(--tile-deep);box-shadow:0 3px 0 var(--tile-deep);color:var(--tile-ink)}
 .iconbtn.hot::after{
   content:"";position:absolute;inset:-6px;border-radius:19px;border:3px solid var(--tile);
@@ -554,6 +559,7 @@ function speak(text, rate){
 var ICON_SOUND_ON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5z" fill="currentColor"/><path d="M15.5 9a4 4 0 0 1 0 6"/><path d="M18 6.5a7.5 7.5 0 0 1 0 11"/></svg>';
 var ICON_SOUND_OFF = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5z" fill="currentColor"/><path d="M16 9.5l5 5M21 9.5l-5 5"/></svg>';
 var ICON_SHARE = '<svg class="inl" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V3.5M8 7l4-4 4 4"/><path d="M8 10.5H6.5a1.5 1.5 0 0 0-1.5 1.5v7A1.5 1.5 0 0 0 6.5 20.5h11A1.5 1.5 0 0 0 19 19v-7a1.5 1.5 0 0 0-1.5-1.5H16"/></svg>';
+var ICON_LISTS = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1.2" fill="currentColor"/><circle cx="4.5" cy="12" r="1.2" fill="currentColor"/><circle cx="4.5" cy="18" r="1.2" fill="currentColor"/></svg>';
 var ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5z" fill="currentColor"/><path d="M15.5 9a4 4 0 0 1 0 6"/><path d="M18 6.5a7.5 7.5 0 0 1 0 11"/></svg>';
 
 /* ---------- shared bits of markup ---------- */
@@ -621,7 +627,7 @@ VIEWS.home = function(){
       '<p class="starcount"><span class="star on">★</span> ' + starCountFor(L) + ' of ' + (n * 3) + ' stars</p></header>' +
     '<p class="listline"><span class="listmeta">' + n + ' words' + (L.dateStr ? '<br> ' + L.dateStr : '') + '</span>' +
       '<span class="tools">' +
-        (LISTS.length > 1 ? '<button class="btn quiet small" data-act="lists">Other lists</button>' : '') +
+        (LISTS.length > 1 ? '<button class="btn quiet small listsbtn" data-act="lists" aria-label="Other lists">' + ICON_LISTS + '<span>Other lists</span></button>' : '') +
         (canSpeak ? '<button class="iconbtn' + (soundOn ? '' : ' off') + '" data-act="sound" aria-pressed="' + soundOn + '" aria-label="' + (soundOn ? 'Sound is on. Switch it off' : 'Sound is off. Switch it on') + '">' + (soundOn ? ICON_SOUND_ON : ICON_SOUND_OFF) + '</button>' : '') +
         '<button class="iconbtn help' + (!helpSeen && !STANDALONE ? ' hot' : ' off') + '" data-act="help" aria-label="How to add this to your Home Screen">?</button>' +
       '</span></p>' +
