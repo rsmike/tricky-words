@@ -33,7 +33,7 @@ window.WORD_LISTS = [
     id: "2026-10-04-d-words-espresso",
     tag: "espresso",
     title: "Week 4",
-    date: "2026-10-04",
+    date: "2026-10-05",
     words: [
       { w: "daub",        m: "smear on roughly",                  chunks: "daub",              decoys: "or",
         s: "My little brother likes to {w} mud all over the garden wall.",
@@ -78,7 +78,7 @@ window.WORD_LISTS = [
     id: "2026-10-04-d-words-cappuccino",
     tag: "cappuccino",
     title: "Week 4",
-    date: "2026-10-04",
+    date: "2026-10-05",
     words: [
       { w: "death",       m: "the end of life",                   chunks: "death",             decoys: "fi",
         s: "The {w} of our goldfish made the whole family sad.",
